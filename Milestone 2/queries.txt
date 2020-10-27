@@ -1,0 +1,31 @@
+
+/* Get destination names with recommended food, airline, and hotel */
+SELECT dest_name, food_name, air_name, hotel_name
+FROM 
+	DESTINATION 
+    JOIN FOOD_TYPE   ON DESTINATION.food_id  = FOOD_TYPE.food_id
+    JOIN AIRLINE     ON DESTINATION.air_code   = AIRLINE.air_code
+    JOIN HOTEL_BRAND ON DESTINATION.hotel_id = HOTEL_BRAND.hotel_id
+ORDER BY dest_name;
+
+/* Get destination names with recommended items */
+SELECT dest_name, item_name
+FROM DEST_ITEM di
+	JOIN DESTINATION d ON d.dest_id = di.dest_id
+	JOIN ITEM i        ON i.item_id = di.item_id
+ORDER BY dest_name;
+
+
+/* Get destination names with recommended food, airline, hotel, and item */
+SELECT DESTINATION.dest_name, food_name, air_name, hotel_name, item_name
+FROM 
+	DESTINATION 
+    JOIN FOOD_TYPE   ON DESTINATION.food_id  = FOOD_TYPE.food_id
+    JOIN AIRLINE     ON DESTINATION.air_code   = AIRLINE.air_code
+    JOIN HOTEL_BRAND ON DESTINATION.hotel_id = HOTEL_BRAND.hotel_id
+    JOIN (SELECT dest_name, item_name
+		  FROM DEST_ITEM di
+			JOIN DESTINATION d ON d.dest_id = di.dest_id
+			JOIN ITEM i        ON i.item_id = di.item_id) AS DI
+            ON DESTINATION.dest_name = DI.dest_name
+ORDER BY dest_name;
