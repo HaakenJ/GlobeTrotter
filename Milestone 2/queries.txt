@@ -18,8 +18,7 @@ ORDER BY dest_name;
 
 /* Get destination names with recommended food, airline, hotel, and item */
 SELECT DESTINATION.dest_name, food_name, air_name, hotel_name, item_name
-FROM 
-	DESTINATION 
+FROM DESTINATION 
     JOIN FOOD_TYPE   ON DESTINATION.food_id  = FOOD_TYPE.food_id
     JOIN AIRLINE     ON DESTINATION.air_code   = AIRLINE.air_code
     JOIN HOTEL_BRAND ON DESTINATION.hotel_id = HOTEL_BRAND.hotel_id
@@ -29,3 +28,17 @@ FROM
 			JOIN ITEM i        ON i.item_id = di.item_id) AS DI
             ON DESTINATION.dest_name = DI.dest_name
 ORDER BY dest_name;
+
+/* Get recommended destinations for each user */
+SELECT member_lname, member_fname, dest_name
+FROM RECOMMENDED_DEST rd
+	JOIN DESTINATION d ON d.dest_id   = rd.dest_id
+	JOIN MEMBER m      ON m.member_id = rd.member_id
+ORDER BY member_lname;
+
+/* Get desired destinations for each user */
+SELECT member_lname, member_fname, dest_name
+FROM DESIRED_DEST dd
+	JOIN DESTINATION d ON d.dest_id   = dd.dest_id
+	JOIN MEMBER m      ON m.member_id = dd.member_id
+ORDER BY member_lname;
