@@ -43,6 +43,16 @@ FROM DESIRED_DEST dd
 	JOIN MEMBER m      ON m.member_id = dd.member_id
 ORDER BY member_lname;
 
+/* Displays the commonly stayed at hotel for each destination */
+SELECT       
+	dest_name,
+	hotel_name
+FROM RATING r
+	JOIN 	 DESTINATION d ON r.dest_id  = d.dest_id
+    JOIN 	 HOTEL_BRAND h ON r.hotel_id = h.hotel_id
+GROUP BY hotel_name
+ORDER BY COUNT(r.hotel_id) DESC;
+
 
 /* 
  * Procedure to get all ratings in a readable form. Displays actual names of
@@ -69,3 +79,47 @@ ORDER BY Destination;
 
 END //
 DELIMITER ;
+
+
+/* 
+ * Lists destinations and the most commonly stayed at hotel at that 
+ * destination.
+ * Data is drawn from the ratings table. Each user lists what hotel they 
+ * stayed at at that destination.
+ */
+SELECT 
+    t1.dest_id,
+    d.dest_name AS Destination,
+    t1.hotel_id,
+    h.hotel_name AS `Hotel Name`,
+    t1.numStays AS `# of Stays`
+FROM(
+	SELECT
+		r.dest_id,
+		dest_name,
+		r.hotel_id,
+		hotel_name,
+		COUNT(*) AS numStays
+	FROM RATING r 
+		JOIN DESTINATION d ON r.dest_id  = d.dest_id
+		JOIN HOTEL_BRAND h ON r.hotel_id = h.hotel_id
+	GROUP BY dest_id, hotel_id
+    ) t1
+JOIN(
+	SELECT 
+		dest_id,
+		hotel_id,
+		MAX(numStays) AS largestCount
+	FROM(
+		SELECT
+			dest_id,
+			hotel_id,
+			COUNT(*) AS numStays
+		FROM RATING
+		GROUP BY dest_id, hotel_id) temp
+	GROUP BY dest_id
+    ) t2
+ON t2.dest_id = t1.dest_id AND t2.largestCount = t1.numStays
+JOIN DESTINATION d ON t1.dest_id  = d.dest_id
+JOIN HOTEL_BRAND h ON t1.hotel_id = h.hotel_id
+ORDER BY t1.dest_id;
