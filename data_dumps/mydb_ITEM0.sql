@@ -1,0 +1,61 @@
+-- MySQL dump 10.13  Distrib 8.0.21, for Win64 (x86_64)
+--
+-- Host: mysql-test01.cw3pi1ekgozo.us-east-1.rds.amazonaws.com    Database: mydb
+-- ------------------------------------------------------
+-- Server version	8.0.20
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+SET @MYSQLDUMP_TEMP_LOG_BIN = @@SESSION.SQL_LOG_BIN;
+SET @@SESSION.SQL_LOG_BIN= 0;
+
+--
+-- GTID state at the beginning of the backup 
+--
+
+SET @@GLOBAL.GTID_PURGED=/*!80000 '+'*/ '';
+
+--
+-- Table structure for table `ITEM`
+--
+
+DROP TABLE IF EXISTS `ITEM`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ITEM` (
+  `item_id` int NOT NULL AUTO_INCREMENT,
+  `item_name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`item_id`),
+  UNIQUE KEY `item_id_UNIQUE` (`item_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ITEM`
+--
+
+LOCK TABLES `ITEM` WRITE;
+/*!40000 ALTER TABLE `ITEM` DISABLE KEYS */;
+INSERT INTO `ITEM` VALUES (1,'Scraf '),(2,'Mosquito Repellant'),(3,'Hicking Stick'),(4,'Swimming Suit'),(5,'Binocle'),(6,'Sunglasses'),(7,'Puncho'),(8,'Camping Lantern'),(9,'Waterproof Phone Case'),(10,'Sneakers'),(11,'Rainproof Jacket'),(12,'Medicine/ First Aid Kit'),(13,'Toiletries'),(14,'Portable mini fan'),(15,'Refillable water bottle'),(16,'Slashproof Backpack'),(17,'Hand Sanitizer'),(18,'Travel Adapter'),(19,'Sun Screen'),(20,'Straw Hat'),(42,'sunscreen'),(43,'hiking boots'),(44,'umbrella'),(45,'malaria medication'),(46,'swimsuit'),(47,'parka'),(48,'binoculars'),(49,'EU power adaptor'),(50,'camera'),(51,'fancy clothes'),(52,'water filter'),(53,'money belt'),(54,'scuba gear'),(55,'first-aid kit'),(56,'bug spray'),(57,'bear mace'),(58,'warm sleeping bag'),(59,'diarrhea medication'),(60,'anti-biotics'),(61,'ice axe');
+/*!40000 ALTER TABLE `ITEM` ENABLE KEYS */;
+UNLOCK TABLES;
+SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2020-10-28 21:28:30
