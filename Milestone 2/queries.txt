@@ -42,3 +42,30 @@ FROM DESIRED_DEST dd
 	JOIN DESTINATION d ON d.dest_id   = dd.dest_id
 	JOIN MEMBER m      ON m.member_id = dd.member_id
 ORDER BY member_lname;
+
+
+/* 
+ * Procedure to get all ratings in a readable form. Displays actual names of
+ * places, hotels, posters, airlines, and highlights instead of the id's 
+ * that are in the ratings table.
+ */
+CREATE PROCEDURE getAllRatings()
+BEGIN
+SELECT 
+	dest_name AS Destination,
+	rat_stars AS Rating, 
+    rat_amt_spent AS 'Amount Spent',
+    hotel_name AS Hotel,
+    CONCAT(member_fname, " ", member_lname) AS Poster,
+    air_name AS Airline,
+    highlight_name AS Highlight
+FROM RATING r
+	JOIN HOTEL_BRAND htl ON r.hotel_id     = htl.hotel_id
+    JOIN MEMBER      m   ON r.member_id    = m.member_id
+    JOIN AIRLINE     a   ON r.air_code     = a.air_code
+    JOIN DESTINATION d   ON r.dest_id      = d.dest_id
+    JOIN HIGHLIGHT   h   ON r.highlight_id = h.highlight_id
+ORDER BY Destination;
+
+END //
+DELIMITER ;
