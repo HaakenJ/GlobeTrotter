@@ -31,7 +31,7 @@ public class QueryRunner {
         
         // You will need to put your Project Application in the below variable
         
-        this.m_projectTeamApplication="CITYELECTION";    // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        this.m_projectTeamApplication="globetrotter";    // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
         
         // Each row that is added to m_queryArray is a separate query. It does not work on Stored procedure calls.
         // The 'new' Java keyword is a way of initializing the data that will be added to QueryArray. Please do not change
@@ -43,8 +43,55 @@ public class QueryRunner {
         //    IsItActionQuery (e.g. Mark it true if it is, otherwise false)
         //    IsItParameterQuery (e.g.Mark it true if it is, otherwise false)
         
-        m_queryArray.add(new QueryData("Select * from contact", null, null, false, false));   // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
-        m_queryArray.add(new QueryData("Select * from contact where contact_id=?", new String [] {"CONTACT_ID"}, new boolean [] {false},  false, true));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        /* 
+         * Query to find a destination known for a certain food type, a certain highlight, 
+         * and a cost below a certain value
+         */
+        m_queryArray.add(new QueryData(
+        		"SELECT \n"
+        		+ " DESTINATION.dest_name AS Destination,\n"
+        		+ " FOOD_TYPE.food_name AS Food_Type,\n"
+        		+ " HIGHLIGHT.highlight_name AS Travel_Highlight,\n"
+        		+ " RATING.rat_amt_spent AS Travel_Expense \n"
+        		+ "From\n"
+        		+ " DESTINATION\n"
+        		+ " JOIN FOOD_TYPE ON FOOD_TYPE.food_id = DESTINATION.food_id\n"
+        		+ " JOIN HIGHLIGHT ON HIGHLIGHT.highlight_id = DESTINATION.highlight_id\n"
+        		+ " JOIN RATING ON RATING.dest_id = DESTINATION.dest_id \n"
+        		+ "Where\n"
+        		+ "	FOOD_TYPE.food_name = ?\n"
+        		+ " AND HIGHLIGHT.highlight_name = ?\n"
+        		+ "	AND RATING.rat_amt_spent < ? \n"
+        		+ "GROUP BY DESTINATION.dest_name \n"
+        		+ "Order By Travel_Expense DESC;",
+        		new String [] {"FOOD_NAME", "HIGHTLIGHT_NAME", "AMOUNT_SPENT"},
+        		new boolean [] {false, false, false},
+        		false, 
+        		true)
+        		);
+        
+        /* Get 5 Star Destinations best known for a parameterized highlight */
+        m_queryArray.add(new QueryData(
+        		"SELECT\n"
+        		+ " dest_name AS Destination,\n"
+        		+ " highlight_name AS Highlight,\n"
+        		+ " rat_stars AS Rating \n"
+        		+ "FROM\n"
+        		+ " DESTINATION,\n"
+        		+ " RATING,\n"
+        		+ " HIGHLIGHT \n"
+        		+ "WHERE\n"
+        		+ " DESTINATION.dest_id = RATING.dest_id\n"
+        		+ " AND HIGHLIGHT.highlight_id = RATING.highlight_id\n"
+        		+ " AND RATING.rat_stars = 5\n"
+        		+ " AND HIGHLIGHT.highlight_name = ? \n"
+        		+ "GROUP BY DESTINATION.dest_name;"
+        		, new String [] {"HIGHLIGHT_NAME"}, 
+        		new boolean [] {false},  
+        		false, 
+        		true)
+        		);
+        
         m_queryArray.add(new QueryData("Select * from contact where contact_name like ?", new String [] {"CONTACT_NAME"}, new boolean [] {true}, false, true));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
         m_queryArray.add(new QueryData("insert into contact (contact_id, contact_name, contact_salary) values (?,?,?)",new String [] {"CONTACT_ID", "CONTACT_NAME", "CONTACT_SALARY"}, new boolean [] {false, false, false}, true, true));// THIS NEEDS TO CHANGE FOR YOUR APPLICATION
                        
