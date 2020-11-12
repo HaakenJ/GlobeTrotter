@@ -241,7 +241,34 @@ public class QueryRunner {
         {
             if (args[0].equals ("-console"))
             {
-            	System.out.println("Nothing has been implemented yet. Please implement the necessary code");
+            	
+            	QueryRunner qr = new QueryRunner();
+            	
+            	String hostname;
+            	String user;
+            	String password;
+            	String dbName;
+            	
+            	Scanner scan = new Scanner(System.in);
+            	
+            	System.out.println("Please enter your hostname: ");
+            	hostname = scan.nextLine();
+            	
+            	System.out.println("Please enter your username: ");
+            	user = scan.nextLine();
+            	
+            	System.out.println("Please enter your password: ");
+            	password = scan.nextLine();
+            	
+            	System.out.println("Please enter the database name: ");
+            	dbName = scan.nextLine();
+            	
+            	if (qr.Connect(hostname, user, password, dbName)) {
+            		System.out.println("Connection successful");
+            	}
+            	
+            	scan.close();
+            	
                // TODO 
                 // You should code the following functionality:
 
