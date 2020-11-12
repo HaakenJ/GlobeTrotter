@@ -6,6 +6,7 @@
 package queryrunner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -43,6 +44,12 @@ public class QueryRunner {
         //    IsItActionQuery (e.g. Mark it true if it is, otherwise false)
         //    IsItParameterQuery (e.g.Mark it true if it is, otherwise false)
         
+        m_queryArray.add(new QueryData("Select * from HIGHLIGHT", 
+        		null, 
+        		null, 
+        		false, 
+        		false));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        
         /* 
          * Query to find a destination known for a certain food type, a certain highlight, 
          * and a cost below a certain value
@@ -64,9 +71,9 @@ public class QueryRunner {
         		+ "	AND RATING.rat_amt_spent < ? \n"
         		+ "GROUP BY DESTINATION.dest_name \n"
         		+ "Order By Travel_Expense DESC;",
-        		new String [] {"FOOD_NAME", "HIGHTLIGHT_NAME", "AMOUNT_SPENT"},
+        		new String [] {"Food Type", "Highlight Type", "Max Amount Spent"},
         		new boolean [] {false, false, false},
-        		false, 
+        		false,
         		true)
         		);
         
@@ -210,6 +217,40 @@ public class QueryRunner {
     {
         return m_error;
     }
+    
+    /**
+     * Method to pad a string with spaces on the end to reach a certain length
+     * Then adds a vertical line to the end of the inputString
+     * @param inputString string to pad with spaces
+     * @param length      the desired length of the string
+     * @return            the input string padded with spaces
+     */
+    public String padRightSpaces(String inputString, int length) {
+        if (inputString.length() >= length) {
+            return inputString;
+        }
+        StringBuilder sb = new StringBuilder(inputString);
+        while (sb.length() < length - 2) {
+            sb.append(' ');
+        }
+        sb.append('|');
+        sb.append(' ');
+     
+        return sb.toString();
+    }
+    
+    /**
+     * Returns a horizontal line of a specified length
+     * @param n length of the desired line
+     * @return  horizontal line of length n
+     */
+    public String getHorizontalLine(int n) {
+    	StringBuilder sb = new StringBuilder();
+    	while (sb.length() < n)
+    		sb.append('-');
+    	
+    	return sb.toString();
+    }
  
     private QueryJDBC m_jdbcData;
     private String m_error;    
@@ -224,7 +265,6 @@ public class QueryRunner {
 
     
     public static void main(String[] args) {
-        // TODO code application logic here
 
         final QueryRunner queryrunner = new QueryRunner();
         
@@ -240,10 +280,7 @@ public class QueryRunner {
         else
         {
             if (args[0].equals ("-console"))
-            {
-            	
-            	QueryRunner qr = new QueryRunner();
-            	
+            {            	
             	String hostname;
             	String user;
             	String password;
@@ -251,20 +288,112 @@ public class QueryRunner {
             	
             	Scanner scan = new Scanner(System.in);
             	
-            	System.out.println("Please enter your hostname: ");
-            	hostname = scan.nextLine();
+//            	System.out.println("Please enter your hostname: ");
+//            	hostname = scan.nextLine();
+//            	
+//            	System.out.println("Please enter your username: ");
+//            	user = scan.nextLine();
+//            	
+//            	System.out.println("Please enter your password: ");
+//            	password = scan.nextLine();
+//            	
+//            	System.out.println("Please enter the database name: ");
+//            	dbName = scan.nextLine();
             	
-            	System.out.println("Please enter your username: ");
-            	user = scan.nextLine();
+            	hostname = "mysql-test01.cw3pi1ekgozo.us-east-1.rds.amazonaws.com";
+            	user     = "admin";
+            	password = "Mile!56stone";
+            	dbName   = "globetrotter";
             	
-            	System.out.println("Please enter your password: ");
-            	password = scan.nextLine();
-            	
-            	System.out.println("Please enter the database name: ");
-            	dbName = scan.nextLine();
-            	
-            	if (qr.Connect(hostname, user, password, dbName)) {
-            		System.out.println("Connection successful");
+            	// Attempt to connect to database
+            	if (queryrunner.Connect(hostname, user, password, dbName)) {
+            		System.out.println("Connection successful\n");
+            		
+            		System.out.println("****** Welcome to GlobeTrotter *****\n");
+            		
+            		int n = queryrunner.GetTotalQueries();
+            		
+            		// Loop through  all queries
+            		for (int i = 0; i < n; i++) {
+            		
+            			System.out.println("\nQuery " + (i + 1) + " out of " + n + "...\n");
+            			
+            			int numParam = queryrunner.GetParameterAmtForQuery(i);
+            			String [] parmstring={};
+            	        String [] headers;
+            	        String [][] allData;
+            	        boolean success = false;
+            			
+            			// Check if this query requires parameters
+            			if (queryrunner.isParameterQuery(i)) {
+            				parmstring = new String[numParam];
+            				
+            				for (int j = 0; j < numParam; j++) {
+            					String currParam = queryrunner.GetParamText(i, j);
+            					
+            					System.out.print("\nEnter a value for parameter \"");
+            					System.out.println(currParam + "\": ");
+            					
+            					parmstring[j] = scan.nextLine();
+            				}
+            			}
+            				
+        				// Check if this query is an action query
+        				if (queryrunner.isActionQuery(i)) {
+        					
+        					success = queryrunner.ExecuteUpdate(i, parmstring); 
+        					
+        					if (success == true) {
+        						
+            					int updateAmt = queryrunner.GetUpdateAmount();
+            					
+            					System.out.println("\n" + updateAmt + " total row(s) affected.\n");
+        					}
+        					else {
+        						System.err.print("There was an error updating the db: ");
+        						System.err.println(queryrunner.GetError());
+        					}
+        				}
+        				// Not an action query
+        				else {
+        					success = queryrunner.ExecuteQuery(i, parmstring);
+        					
+        					if (success = true) {
+        						
+        						headers = queryrunner.GetQueryHeaders();
+            	                allData = queryrunner.GetQueryData();
+            	                
+            	                for (String s : headers) {
+            	                	String header = queryrunner.padRightSpaces(s, 20);
+            	                	System.out.print(header + " ");
+            	                }
+            	                System.out.println();
+            	                
+            	                System.out.println(queryrunner.getHorizontalLine(20 * headers.length));
+            	                
+        						for (int j = 0; j < allData.length; j++) {
+        							for (int k = 0; k < allData[j].length; k++) {
+        								String data = queryrunner.padRightSpaces(allData[j][k], 20);
+        								System.out.print(data + " ");
+        							}
+        							System.out.println();
+        						}
+        					}
+        					else {
+          						System.err.print("There was an error getting data from the db: ");
+        						System.err.println(queryrunner.GetError());
+        					}
+        				}
+        				
+        				// reset the success variable
+        				success = false;
+            		}
+            		
+            		System.out.println("\nThis the end of the application, we hope you enjoyed it!");
+            	}
+            	else {
+            		System.out.print("There was an error connecting to the database: ");
+            		System.out.println(queryrunner.GetError());
             	}
             	
             	scan.close();
@@ -291,13 +420,13 @@ public class QueryRunner {
                 //           for (j=0; j< amt; j++)
                 //              Get The Paramater Label for Query and print it to console. Ask the user to enter a value
                 //              Take the value you got and put it into your parameter array
-                //           If it is an Action Query then
-                //              call ExecuteUpdate to run the Query
-                //              call GetUpdateAmount to find out how many rows were affected, and print that value
-                //           else
-                //               call ExecuteQuery 
-                //               call GetQueryData to get the results back
-                //               print out all the results
+            //           If it is an Action Query then
+            //              call ExecuteUpdate to run the Query
+            //              call GetUpdateAmount to find out how many rows were affected, and print that value
+            //           else
+            //               call ExecuteQuery 
+            //               call GetQueryData to get the results back
+            //               print out all the results
                 //           end if
                 //      }
                 //    Disconnect()
