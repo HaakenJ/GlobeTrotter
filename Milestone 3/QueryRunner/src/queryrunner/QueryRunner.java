@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+*/
 package queryrunner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 
 /**
@@ -32,7 +27,7 @@ public class QueryRunner {
         
         // You will need to put your Project Application in the below variable
         
-        this.m_projectTeamApplication="globetrotter";    // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        this.m_projectTeamApplication="GLOBETROTTER";    // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
         
         // Each row that is added to m_queryArray is a separate query. It does not work on Stored procedure calls.
         // The 'new' Java keyword is a way of initializing the data that will be added to QueryArray. Please do not change
@@ -44,41 +39,183 @@ public class QueryRunner {
         //    IsItActionQuery (e.g. Mark it true if it is, otherwise false)
         //    IsItParameterQuery (e.g.Mark it true if it is, otherwise false)
         
-        m_queryArray.add(new QueryData("Select * from HIGHLIGHT", 
-        		null, 
-        		null, 
-        		false, 
-        		false));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
-        
-        /* 
-         * Query to find a destination known for a certain food type, a certain highlight, 
-         * and a cost below a certain value
-         */
-        m_queryArray.add(new QueryData(
-        		"SELECT \n"
-        		+ " DESTINATION.dest_name AS Destination,\n"
-        		+ " FOOD_TYPE.food_name AS Food_Type,\n"
-        		+ " HIGHLIGHT.highlight_name AS Travel_Highlight,\n"
-        		+ " RATING.rat_amt_spent AS Travel_Expense \n"
-        		+ "From\n"
-        		+ " DESTINATION\n"
-        		+ " JOIN FOOD_TYPE ON FOOD_TYPE.food_id = DESTINATION.food_id\n"
-        		+ " JOIN HIGHLIGHT ON HIGHLIGHT.highlight_id = DESTINATION.highlight_id\n"
-        		+ " JOIN RATING ON RATING.dest_id = DESTINATION.dest_id \n"
-        		+ "Where\n"
-        		+ "	FOOD_TYPE.food_name = ?\n"
-        		+ " AND HIGHLIGHT.highlight_name = ?\n"
-        		+ "	AND RATING.rat_amt_spent < ? \n"
-        		+ "GROUP BY DESTINATION.dest_name \n"
-        		+ "Order By Travel_Expense DESC;",
-        		new String [] {"Food Type", "Highlight Type", "Max Amount Spent"},
-        		new boolean [] {false, false, false},
-        		false,
-        		true)
-        		);
-        
-        /* Get 5 Star Destinations best known for a parameterized highlight */
-        m_queryArray.add(new QueryData(
+       
+          // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        m_queryArray.add(new QueryData("Select * from contact where contact_id=?", new String [] {"CONTACT_ID"}, new boolean [] {false},  false, true));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        m_queryArray.add(new QueryData("Select * from contact where contact_name like ?", new String [] {"CONTACT_NAME"}, new boolean [] {true}, false, true));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+        m_queryArray.add(new QueryData("insert into contact (contact_id, contact_name, contact_salary) values (?,?,?)",new String [] {"CONTACT_ID", "CONTACT_NAME", "CONTACT_SALARY"}, new boolean [] {false, false, false}, true, true));// THIS NEEDS TO CHANGE FOR YOUR APPLICATION
+                       
+    }
+     
+    /**
+     * This query is a way for users to see what the most commonly rated destination is;
+	 * essentially the most visited. Knowing this will give the user an idea of how popular a place
+	 * is.
+     */
+    private void top3MostRated() {
+    	
+   	 m_queryArray.add(new QueryData("SELECT\r\n"
+        		+ "RATING. dest_id AS destination_id,\r\n"
+        		+ "DESTINATION.dest_name AS destination,\r\n"
+        		+ "COUNT(RATING.dest_id) AS Number_Of_Times_Rated_By_User\r\n"
+        		+ "From\r\n"
+        		+ "DESTINATION\r\n"
+        		+ "JOIN RATING ON RATING.dest_id = DESTINATION.dest_id\r\n"
+        		+ "GROUP BY RATING.dest_id\r\n"
+        		+ "ORDER BY Number_Of_Times_Rated_By_User DESC\r\n"
+        		+ "LIMIT 3;", null, null, false, false));
+    }
+    /**
+     * This query shows what someone would be looking for in a luxurious vacation,
+	 * potentially honeymooners. When spending this kind of money, it’s important that the
+	 * vacation meets the expectations that come with that kind of payment. This will certainly
+	 * help people know where to go when trying to pick a luxurious vacation spot.
+     */
+
+    private void luxuryTrip() {
+    	 m_queryArray.add(new QueryData("SELECT\r\n"
+    	 		+ "CONCAT (MEMBER.member_fname, ' ', MEMBER.member_lname) AS User_Name,\r\n"
+    	 		+ "RATING.rat_stars AS User_Rating,\r\n"
+    	 		+ "RATING.rat_amt_spent as Trip_Expense,\r\n"
+    	 		+ "DESTINATION.dest_name as Destination\r\n"
+    	 		+ "From\r\n"
+    	 		+ "RATING\r\n"
+    	 		+ "JOIN MEMBER ON MEMBER.member_id = RATING.member_id\r\n"
+    	 		+ "JOIN DESTINATION ON DESTINATION.dest_id = RATING.dest_id\r\n"
+    	 		+ "WHERE\r\n"
+    	 		+ "RATING.rat_amt_spent > 2950\r\n"
+    	 		+ "AND (RATING.rat_stars = 4\r\n"
+    	 		+ "or RATING.rat_stars = 5)\r\n"
+    	 		+ "GROUP BY User_Name\r\n"
+    	 		+ "ORDER BY User_Rating DESC;\r\n"
+    	 		+ "DATA", null, null, false, false));
+    }
+    
+    /**
+     * This is a great bang for your buck query. When traveling, doing everything you can
+	 * to save money is critical to the success of a good trip. This query allows the client to see the
+	 * highest-rated places to visit, which costs the least. If you can have a top tier vacation for a
+	 * cheaper cost, why not do it?
+     */
+    private void bangForYourBuck() {
+    	m_queryArray.add(new QueryData("SELECT\r\n"
+    			+ "dest_name AS Destination,\r\n"
+    			+ "rat_amt_spent AS Cost,\r\n"
+    			+ "rat_stars AS Rating\r\n"
+    			+ "FROM\r\n"
+    			+ "DESTINATION,\r\n"
+    			+ "RATING\r\n"
+    			+ "WHERE\r\n"
+    			+ "DESTINATION.dest_id = RATING.dest_ID\r\n"
+    			+ "AND (RATING.rat_stars = 4 OR RATING.rat_stars = 5)\r\n"
+    			+ "GROUP BY DESTINATION.dest_name\r\n"
+    			+ "order by RATING.rat_amt_spent;", null, null, false, false));
+    	
+    }
+    
+    /* 
+     * Query to find a destination known for a certain food type, a certain highlight, 
+     * and a cost below a certain value
+     */
+    private void destInfo() {
+    	m_queryArray.add(new QueryData(
+    		"SELECT \n"
+    		+ " DESTINATION.dest_name AS Destination,\n"
+    		+ " FOOD_TYPE.food_name AS Food_Type,\n"
+    		+ " HIGHLIGHT.highlight_name AS Travel_Highlight,\n"
+    		+ " RATING.rat_amt_spent AS Travel_Expense \n"
+    		+ "From\n"
+    		+ " DESTINATION\n"
+    		+ " JOIN FOOD_TYPE ON FOOD_TYPE.food_id = DESTINATION.food_id\n"
+    		+ " JOIN HIGHLIGHT ON HIGHLIGHT.highlight_id = DESTINATION.highlight_id\n"
+    		+ " JOIN RATING ON RATING.dest_id = DESTINATION.dest_id \n"
+    		+ "Where\n"
+    		+ "	FOOD_TYPE.food_name = ?\n"
+    		+ " AND HIGHLIGHT.highlight_name = ?\n"
+    		+ "	AND RATING.rat_amt_spent < ? \n"
+    		+ "GROUP BY DESTINATION.dest_name \n"
+    		+ "Order By Travel_Expense DESC;",
+    		new String [] {"Food Type", "Highlight Type", "Max Amount Spent"},
+    		new boolean [] {false, false, false},
+    		false,
+    		true)
+    		);
+    }
+    
+    /**
+     * Create a query that displays the top-5 most desired travel destinations among all
+	 * Globetrotter users. 
+     */
+    private void desiredDestinations() {
+    	m_queryArray.add(new QueryData("SELECT\r\n"
+    			+ "DESTINATION.dest_name AS Destination,\r\n"
+    			+ "FOOD_TYPE.food_name AS Rec_Food,\r\n"
+    			+ "HOTEL_BRAND.hotel_name AS Rec_Hotel,\r\n"
+    			+ "AIRLINE.air_name AS Rec_Airline,\r\n"
+    			+ "HIGHLIGHT.highlight_name AS Rec_Highlight,\r\n"
+    			+ "COUNT(DESIRED_DEST.dest_id) AS Times_Desired_Destination_Mentioned\r\n"
+    			+ "FROM\r\n"
+    			+ "DESTINATION\r\n"
+    			+ "JOIN HOTEL_BRAND ON HOTEL_BRAND.hotel_id = DESTINATION.hotel_id\r\n"
+    			+ "JOIN AIRLINE ON AIRLINE.air_code = DESTINATION.air_code\r\n"
+    			+ "JOIN HIGHLIGHT ON HIGHLIGHT.highlight_id = DESTINATION.highlight_id\r\n"
+    			+ "JOIN FOOD_TYPE ON FOOD_TYPE.food_id = DESTINATION.food_id\r\n"
+    			+ "JOIN DESIRED_DEST ON DESIRED_DEST.dest_id = DESTINATION.dest_id\r\n"
+    			+ "GROUP BY DESTINATION.dest_name\r\n"
+    			+ "ORDER BY Times_Desired_Destination_Mentioned DESC\r\n"
+    			+ "LIMIT 5;", null, null, false, false));
+    }
+    
+    /**
+     * Create a query that lists destinations and the most commonly stayed at hotels at that
+	 * destination. Data is drawn from the RATING table. Each user lists what hotel users stayed
+	 * at that destination.
+     */
+    private void mostPopularHotels() {
+        	m_queryArray.add(new QueryData("SELECT\r\n"
+        			+ "t1.dest_id,\r\n"
+        			+ "d.dest_name AS Destination,\r\n"
+        			+ "t1.hotel_id,\r\n"
+        			+ "h.hotel_name AS `Hotel Name`,\r\n"
+        			+ "t1.numStays AS `# of Stays`\r\n"
+        			+ "FROM(\r\n"
+        			+ "SELECT\r\n"
+        			+ "r.dest_id,\r\n"
+        			+ "dest_name,\r\n"
+        			+ "r.hotel_id,\r\n"
+        			+ "hotel_name,\r\n"
+        			+ "COUNT(*) AS numStays\r\n"
+        			+ "FROM RATING r\r\n"
+        			+ "JOIN DESTINATION d ON r.dest_id = d.dest_id\r\n"
+        			+ "JOIN HOTEL_BRAND h ON r.hotel_id = h.hotel_id\r\n"
+        			+ "GROUP BY dest_id, hotel_id\r\n"
+        			+ ") t1\r\n"
+        			+ "JOIN(\r\n"
+        			+ "SELECT\r\n"
+        			+ "dest_id,\r\n"
+        			+ "hotel_id,\r\n"
+        			+ "MAX(numStays) AS largestCount\r\n"
+        			+ "FROM(\r\n"
+        			+ "SELECT\r\n"
+        			+ "dest_id,\r\n"
+        			+ "hotel_id,\r\n"
+        			+ "COUNT(*) AS numStays\r\n"
+        			+ "FROM RATING\r\n"
+        			+ "GROUP BY dest_id, hotel_id) temp\r\n"
+        			+ "GROUP BY dest_id\r\n"
+        			+ ") t2\r\n"
+        			+ "ON t2.dest_id = t1.dest_id AND t2.largestCount = t1.numStays\r\n"
+        			+ "JOIN DESTINATION d ON t1.dest_id = d.dest_id\r\n"
+        			+ "JOIN HOTEL_BRAND h ON t1.hotel_id = h.hotel_id\r\n"
+        			+ "ORDER BY t1.dest_id;", null, null, false, false));
+    }
+    
+    /**
+     * This query allows for users to see five star destinations that are known for a particular highlight that
+     * the traveler would be looking for. 
+     */
+    private void fiveStarDestinations() {
+    	m_queryArray.add(new QueryData(
         		"SELECT\n"
         		+ " dest_name AS Destination,\n"
         		+ " highlight_name AS Highlight,\n"
@@ -98,10 +235,14 @@ public class QueryRunner {
         		false, 
         		true)
         		);
-        
-        m_queryArray.add(new QueryData("Select * from contact where contact_name like ?", new String [] {"CONTACT_NAME"}, new boolean [] {true}, false, true));        // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
-        m_queryArray.add(new QueryData("insert into contact (contact_id, contact_name, contact_salary) values (?,?,?)",new String [] {"CONTACT_ID", "CONTACT_NAME", "CONTACT_SALARY"}, new boolean [] {false, false, false}, true, true));// THIS NEEDS TO CHANGE FOR YOUR APPLICATION
-                       
+    }
+    
+    /**
+     * Insert Member Query
+     */
+    private void insertMember() {
+    	m_queryArray.add(new QueryData("INSERT into MEMBER(member_fname, member_lname, member_city, member_country) VALUES (?, ?, ?, ?)"
+    			, new String[]{"First Name", "Last Name", "City", "Country"}, new boolean[] {false, false, false, false}, true, true));
     }
        
 
