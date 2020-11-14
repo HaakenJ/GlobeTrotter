@@ -557,20 +557,72 @@ public class QueryRunner {
 			displayExit();
 		}
     }
-    
-    public void addRating() {
-    	System.out.println("");
+
+/**
+ * Runs a query and prints out results.
+ * @precon the query does not require parameters and is not an action query
+ * @param queryrunner a QueryRunner instance
+ * @param i           the number query the client wishes to run
+ */
+public static void runQuery(QueryRunner qr, int i) 
+    		throws IllegalArgumentException {
+
+		String [] parmstring={};
+        String [] headers;
+        String [][] allData;
+		
+		// Check if this query requires parameters
+		if (qr.isParameterQuery(i)) {
+			throw new IllegalArgumentException("The passed in query requires "
+					+ "parameters.  This function does not handle "
+					+ "parameters.");
+		}
+			
+		// Check if this query is an action query
+		if (qr.isActionQuery(i)) {
+			throw new IllegalArgumentException("The passed in query is "
+					+ "an action query.  This function does not handle "
+					+ "action queries.");
+		}
+		
+		// Not an action query
+		else {
+			boolean success = qr.ExecuteQuery(i, parmstring);
+			
+			if (success = true) {
+				
+				headers = qr.GetQueryHeaders();
+                allData = qr.GetQueryData();
+                
+                for (String s : headers) {
+                	String header = qr.padRightSpaces(s, 20);
+                	System.out.print(header + " ");
+                }
+                System.out.println();
+                
+                System.out.println(qr.getHorizontalLine(20 * headers.length));
+                
+				for (int j = 0; j < allData.length; j++) {
+					for (int k = 0; k < allData[j].length; k++) {
+						String data = qr.padRightSpaces(allData[j][k], 20);
+						System.out.print(data + " ");
+					}
+					System.out.println();
+				}
+			}
+			else {
+				System.err.print("There was an error getting data from the db: ");
+				System.err.println(qr.GetError());
+			}
+		}
     }
     
-    /**
-     * Runs a query and prints out results.  Prompts user for parameters if necessary
-     * @param queryrunner a QueryRunner instance
-     * @param i           the number query the client wishes to run
-     */
-    public static void runQuery(QueryRunner qr, int i) {
-    	
-    	Scanner scan = new Scanner(System.in);
-    	
+    
+public static void runParamQuery(QueryRunner qr, int i) 
+		throws IllegalArgumentException {
+	
+		Scanner scan = new Scanner(System.in);
+
 		int numParam = qr.GetParameterAmtForQuery(i);
 		String [] parmstring={};
         String [] headers;
@@ -578,17 +630,23 @@ public class QueryRunner {
         boolean success = false;
 		
 		// Check if this query requires parameters
-		if (qr.isParameterQuery(i)) {
-			parmstring = new String[numParam];
+		if (!qr.isParameterQuery(i)) {
 			
-			for (int j = 0; j < numParam; j++) {
-				String currParam = qr.GetParamText(i, j);
-				
-				System.out.print("\nEnter a value for parameter \"");
-				System.out.println(currParam + "\": ");
-				
-				parmstring[j] = scan.nextLine();
-			}
+			throw new IllegalArgumentException("The passed in query does not "
+					+ "require parameters.  "
+					+ "This function only handles queries with parameters.");
+		}
+		
+		// Get parameters
+		parmstring = new String[numParam];
+		
+		for (int j = 0; j < numParam; j++) {
+			String currParam = qr.GetParamText(i, j);
+			
+			System.out.print("\nEnter a value for parameter \"");
+			System.out.println(currParam + "\": ");
+			
+			parmstring[j] = scan.nextLine();
 		}
 			
 		// Check if this query is an action query
@@ -637,10 +695,8 @@ public class QueryRunner {
 				System.err.println(qr.GetError());
 			}
 		}
-		
-		// reset the success variable
-		success = false;
     }
+    
     
     private QueryJDBC m_jdbcData;
     private String m_error;    
@@ -722,11 +778,9 @@ public class QueryRunner {
             		
             		int n = queryrunner.GetTotalQueries();
             		
-//            		queryrunner.runQuery(5);
-            		
             		// Loop through  all queries
             		for (int i = 6; i < 14; i++) {
-                		queryrunner.runQuery(i);
+                		runQuery(queryrunner, i);
             		}
             		
             		System.out.println("\nThis the end of the application, we hope you enjoyed it!");
