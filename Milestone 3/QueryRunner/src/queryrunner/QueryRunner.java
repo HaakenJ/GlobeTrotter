@@ -484,6 +484,80 @@ public class QueryRunner {
     	return sb.toString();
     }
     
+    /**
+     * Function to display options to the user and return query choice
+     * @return the integer choice of the user
+     */
+    public static int getUserChoice() {
+    	Scanner scan = new Scanner(System.in);
+    	
+		System.out.println("  *** What would you like to do?*** \n");
+		
+		System.out.println("1.  Add a member");
+		System.out.println("2.  Add a rating");
+		System.out.println("3.  See the top 3 most visited destinations");
+		System.out.println("4.  See luxurious 4 and 5 star destinations");
+		System.out.println("5.  See low cost 4 and 5 star destinations");
+		System.out.println("6.  Find a destination by food type, highlight type, and cost");
+		System.out.println("7.  Display the top 5 most desired destinations by our members");
+		System.out.println("8.  Display the most commonly stayed with hotels at each destination");
+		System.out.println("9.  Display the most commonly flown with airlines for each destination");
+		System.out.println("10. Find a destination by a highlight type");
+		System.out.println("11. Quit");
+		
+		System.out.print("\nPlease enter a number for your choice: ");
+		
+		int queryChoice = scan.nextInt();
+		
+		while (queryChoice < 1 || queryChoice > 11) {
+			System.out.println("That is not a valid choice.");
+			System.out.print("\nPlease enter a number for your choice: ");
+			queryChoice = scan.nextInt();
+		}
+		
+		return queryChoice;
+    }
+    
+    /**
+     * Function to choose a query base on a passed in user choice
+     */
+    public static void querySwitch(QueryRunner qr, int queryChoice) {
+		switch (queryChoice) {
+		case 1:
+			runMemberQuery(qr);
+			break;
+		case 2:
+			runRatingQuery(qr);
+			break;
+		case 3:
+			runQuery(qr, 2);
+			break;
+		case 4:
+			runQuery(qr, 3);
+			break;
+		case 5:
+			runQuery(qr, 4);
+			break;
+		case 6:
+			runParamQuery(qr, 5);
+			break;
+		case 7:
+			runQuery(qr, 6);
+			break;
+		case 8:
+			runQuery(qr, 7);
+			break;
+		case 9:
+			runQuery(qr, 8);
+			break;
+		case 10:
+			runQuery(qr, 9);
+			break;
+		default:
+			displayExit();
+		}
+    }
+    
     public void addRating() {
     	System.out.println("");
     }
@@ -493,22 +567,22 @@ public class QueryRunner {
      * @param queryrunner a QueryRunner instance
      * @param i           the number query the client wishes to run
      */
-    public void runQuery(int i) {
+    public static void runQuery(QueryRunner qr, int i) {
     	
     	Scanner scan = new Scanner(System.in);
     	
-		int numParam = this.GetParameterAmtForQuery(i);
+		int numParam = qr.GetParameterAmtForQuery(i);
 		String [] parmstring={};
         String [] headers;
         String [][] allData;
         boolean success = false;
 		
 		// Check if this query requires parameters
-		if (this.isParameterQuery(i)) {
+		if (qr.isParameterQuery(i)) {
 			parmstring = new String[numParam];
 			
 			for (int j = 0; j < numParam; j++) {
-				String currParam = this.GetParamText(i, j);
+				String currParam = qr.GetParamText(i, j);
 				
 				System.out.print("\nEnter a value for parameter \"");
 				System.out.println(currParam + "\": ");
@@ -518,41 +592,41 @@ public class QueryRunner {
 		}
 			
 		// Check if this query is an action query
-		if (this.isActionQuery(i)) {
+		if (qr.isActionQuery(i)) {
 			
-			success = this.ExecuteUpdate(i, parmstring); 
+			success = qr.ExecuteUpdate(i, parmstring); 
 			
 			if (success == true) {
 				
-				int updateAmt = this.GetUpdateAmount();
+				int updateAmt = qr.GetUpdateAmount();
 				
 				System.out.println("\n" + updateAmt + " total row(s) affected.\n");
 			}
 			else {
 				System.err.print("There was an error updating the db: ");
-				System.err.println(this.GetError());
+				System.err.println(qr.GetError());
 			}
 		}
 		// Not an action query
 		else {
-			success = this.ExecuteQuery(i, parmstring);
+			success = qr.ExecuteQuery(i, parmstring);
 			
 			if (success = true) {
 				
-				headers = this.GetQueryHeaders();
-                allData = this.GetQueryData();
+				headers = qr.GetQueryHeaders();
+                allData = qr.GetQueryData();
                 
                 for (String s : headers) {
-                	String header = this.padRightSpaces(s, 20);
+                	String header = qr.padRightSpaces(s, 20);
                 	System.out.print(header + " ");
                 }
                 System.out.println();
                 
-                System.out.println(this.getHorizontalLine(20 * headers.length));
+                System.out.println(qr.getHorizontalLine(20 * headers.length));
                 
 				for (int j = 0; j < allData.length; j++) {
 					for (int k = 0; k < allData[j].length; k++) {
-						String data = this.padRightSpaces(allData[j][k], 20);
+						String data = qr.padRightSpaces(allData[j][k], 20);
 						System.out.print(data + " ");
 					}
 					System.out.println();
@@ -560,14 +634,14 @@ public class QueryRunner {
 			}
 			else {
 					System.err.print("There was an error getting data from the db: ");
-				System.err.println(this.GetError());
+				System.err.println(qr.GetError());
 			}
 		}
 		
 		// reset the success variable
 		success = false;
     }
- 
+    
     private QueryJDBC m_jdbcData;
     private String m_error;    
     private String m_projectTeamApplication;
@@ -606,6 +680,10 @@ public class QueryRunner {
             	//    4. Create function to display query results
             	//    5. Create function for each query perhaps
             	//    6. If no results are returned then let the user know that
+//            	runMemberQuery(qr);
+//                runRatingQuery(qr);
+//                runParamQuery(qr, 5);
+//                displayExit();
             	String hostname;
             	String user;
             	String password;
@@ -636,26 +714,11 @@ public class QueryRunner {
             		
             		System.out.println("****** Welcome to GlobeTrotter *****\n");
             		
-            		System.out.println("  *** What would you like to do?*** \n");
-            		
-            		System.out.println("1. Add a member");
-            		System.out.println("2. Add a rating");
-            		System.out.println("3. See the top 3 most visited destinations");
-            		System.out.println("4. See the top 3 most visited destinations");
-            		
-//                    top3MostRated();        // Query 1
-//                    luxuryTrip();           // Query 2
-//                    bangForYourBuck();      // Query 3
-//                    destInfo();             // Query 4
-//                    desiredDestinations();  // Query 5
-//                    mostPopularHotels();    // Query 6
-//                    fiveStarDestinations(); // Query 7
-//                    insertMember();         // Query 8
-//                    insertRating();         // Query 9
-//                    getAirlines();          // Query 10
-//                    getHotels();			// Query 11
-//                    getDestinations();	    // Query 12
-//                    getHighlights();		// Query 13
+            		int queryChoice;
+            		while (queryChoice != 11) {
+            			queryChoice = getUserChoice();
+            			querySwitch(queryrunner, queryChoice);
+            		}
             		
             		int n = queryrunner.GetTotalQueries();
             		
