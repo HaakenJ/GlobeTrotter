@@ -752,12 +752,57 @@ public class QueryRunner {
 
 		String [] parmstring={};
         boolean success = false;
+        int intChoice;
+        String strChoice;
+        
+        rat_stars, rat_amt_spent, hotel_id, member_id, air_code, 5, highlight_id)
 		
 		// Get parameters
-		parmstring = new String[4];
+		parmstring = new String[7];
 		
-		System.out.println("What is the member's first name? ");
-		parmstring[0] = scan.nextLine();
+		// Get destination
+		System.out.println("What is the destination ID for your destination? ");
+		System.out.println("Enter 0 to see all destinations: ");
+		intChoice = scan.nextInt();
+		
+		// display all destinations to the user
+		while (intChoice == 0) {
+			qr.getDestinations();
+			System.out.println("What is the destination ID for your destination? ");
+			System.out.println("Enter 0 to see all destinations: ");
+			intChoice = scan.nextInt();
+		}
+		
+		// make sure the choice is a valid dest_id
+		while (intChoice < 0 || intChoice > 60) {
+			System.out.println("That is not a valid destination ID.");
+			System.out.println("What is the destination ID for your destination? ");
+			intChoice = scan.nextInt();
+		}
+		
+		parmstring[5] = scan.nextLine();
+		
+		// Get airline
+		System.out.println("Who did you fly with? (please enter the airline code) ");
+		System.out.println("Enter 0 to see all arlines: ");
+		strChoice = scan.nextLine();
+		
+		// display all destinations to the user
+		while (strChoice == "0") {
+			qr.getAirlines();
+			System.out.println("Who did you fly with? (please enter the airline code) ");
+			System.out.println("Enter 0 to see all arlines: ");
+			strChoice = scan.nextLine();
+		}
+		
+		// make sure the choice is a valid dest_id
+		while (strChoice.length() <= 1 || strChoice.length() > 3) {
+			System.out.println("That is not a valid airline code.");
+			System.out.println("Please enter an airline code 1 to 3 characters in length: ");
+			strChoice = scan.nextLine();
+		}
+		
+		parmstring[4] = scan.nextLine();
 		
 		System.out.println("What is the member's last name? ");
 		parmstring[1] = scan.nextLine();
