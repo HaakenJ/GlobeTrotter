@@ -54,6 +54,37 @@ public class QueryRunner {
         getHighlights();		// Query 13
     }
      
+    
+    /**
+     * Insert Member Query
+     */
+    private void insertMember() {
+    	m_queryArray.add(new QueryData("INSERT into MEMBER(member_fname, member_lname, member_city, member_country) VALUES (?, ?, ?, ?)"
+    			, new String[]{"First Name", "Last Name", "City", "Country"}, new boolean[] {false, false, false, false}, true, true));
+    }
+    
+    /**
+     * Query to add a rating
+     * @return
+     */
+    private void insertRating() {
+    	m_queryArray.add(new QueryData(""
+    			+ "INSERT INTO RATING "
+    			+ "(rat_stars, rat_amt_spent, hotel_id, member_id, air_code, dest_id, highlight_id)\r\n"
+    			+ "VALUES (?, ?, ?, ?, ?, ?, ?)"
+    			, new String[]{
+    					"Stars", 
+    					"Amount Spent", 
+    					"Hotel ID", 
+    					"Member ID",
+    					"Airline Code",
+    					"Destination ID",
+    					"Favorite Highlight ID"
+    					},
+    			new boolean[] {false, false, false, false, false, false, false},
+    			true, true));
+    }
+    
     /**
      * This query is a way for users to see what the most visited destinations are. 
      */
@@ -274,36 +305,6 @@ public class QueryRunner {
         		false, 
         		true)
         		);
-    }
-    
-    /**
-     * Insert Member Query
-     */
-    private void insertMember() {
-    	m_queryArray.add(new QueryData("INSERT into MEMBER(member_fname, member_lname, member_city, member_country) VALUES (?, ?, ?, ?)"
-    			, new String[]{"First Name", "Last Name", "City", "Country"}, new boolean[] {false, false, false, false}, true, true));
-    }
-    
-    /**
-     * Query to add a rating
-     * @return
-     */
-    private void insertRating() {
-    	m_queryArray.add(new QueryData(""
-    			+ "INSERT INTO RATING "
-    			+ "(rat_stars, rat_amt_spent, hotel_id, member_id, air_code, dest_id, highlight_id)\r\n"
-    			+ "VALUES (?, ?, ?, ?, ?, ?, ?)"
-    			, new String[]{
-    					"Stars", 
-    					"Amount Spent", 
-    					"Hotel ID", 
-    					"Member ID",
-    					"Airline Code",
-    					"Destination ID",
-    					"Favorite Highlight ID"
-    					},
-    			new boolean[] {false, false, false, false, false, false, false},
-    			true, true));
     }
     
     /**
@@ -558,145 +559,231 @@ public class QueryRunner {
 		}
     }
 
-/**
- * Runs a query and prints out results.
- * @precon the query does not require parameters and is not an action query
- * @param queryrunner a QueryRunner instance
- * @param i           the number query the client wishes to run
- */
-public static void runQuery(QueryRunner qr, int i) 
-    		throws IllegalArgumentException {
-
-		String [] parmstring={};
-        String [] headers;
-        String [][] allData;
-		
-		// Check if this query requires parameters
-		if (qr.isParameterQuery(i)) {
-			throw new IllegalArgumentException("The passed in query requires "
-					+ "parameters.  This function does not handle "
-					+ "parameters.");
-		}
+	/**
+	 * Runs a non-parameter query and prints out results.
+	 * @precon the query does not require parameters and is not an action query
+	 * @param queryrunner a QueryRunner instance
+	 * @param i           the number query the client wishes to run
+	 */
+	public static void runQuery(QueryRunner qr, int i) 
+	    		throws IllegalArgumentException {
+	
+			String [] parmstring={};
+	        String [] headers;
+	        String [][] allData;
 			
-		// Check if this query is an action query
-		if (qr.isActionQuery(i)) {
-			throw new IllegalArgumentException("The passed in query is "
-					+ "an action query.  This function does not handle "
-					+ "action queries.");
-		}
-		
-		// Not an action query
-		else {
-			boolean success = qr.ExecuteQuery(i, parmstring);
-			
-			if (success = true) {
+			// Check if this query requires parameters
+			if (qr.isParameterQuery(i)) {
+				throw new IllegalArgumentException("The passed in query requires "
+						+ "parameters.  This function does not handle "
+						+ "parameters.");
+			}
 				
-				headers = qr.GetQueryHeaders();
-                allData = qr.GetQueryData();
-                
-                for (String s : headers) {
-                	String header = qr.padRightSpaces(s, 20);
-                	System.out.print(header + " ");
-                }
-                System.out.println();
-                
-                System.out.println(qr.getHorizontalLine(20 * headers.length));
-                
-				for (int j = 0; j < allData.length; j++) {
-					for (int k = 0; k < allData[j].length; k++) {
-						String data = qr.padRightSpaces(allData[j][k], 20);
-						System.out.print(data + " ");
+			// Check if this query is an action query
+			if (qr.isActionQuery(i)) {
+				throw new IllegalArgumentException("The passed in query is "
+						+ "an action query.  This function does not handle "
+						+ "action queries.");
+			}
+			
+			// Not an action query
+			else {
+				boolean success = qr.ExecuteQuery(i, parmstring);
+				
+				if (success = true) {
+					
+					headers = qr.GetQueryHeaders();
+	                allData = qr.GetQueryData();
+	                
+	                for (String s : headers) {
+	                	String header = qr.padRightSpaces(s, 20);
+	                	System.out.print(header + " ");
+	                }
+	                System.out.println();
+	                
+	                System.out.println(qr.getHorizontalLine(20 * headers.length));
+	                
+					for (int j = 0; j < allData.length; j++) {
+						for (int k = 0; k < allData[j].length; k++) {
+							String data = qr.padRightSpaces(allData[j][k], 20);
+							System.out.print(data + " ");
+						}
+						System.out.println();
 					}
-					System.out.println();
+				}
+				else {
+					System.err.print("There was an error getting data from the db: ");
+					System.err.println(qr.GetError());
 				}
 			}
-			else {
-				System.err.print("There was an error getting data from the db: ");
-				System.err.println(qr.GetError());
-			}
-		}
-    }
-    
-    
-public static void runParamQuery(QueryRunner qr, int i) 
-		throws IllegalArgumentException {
+	    }
+	     
+	/**
+	 * Runs a parameterized query and prints out results.
+	 * @precon the query requires parameters
+	 * @param queryrunner a QueryRunner instance
+	 * @param i           the number query the client wishes to run
+	 */
+	public static void runParamQuery(QueryRunner qr, int i) 
+			throws IllegalArgumentException {
+		
+			Scanner scan = new Scanner(System.in);
 	
+			int numParam = qr.GetParameterAmtForQuery(i);
+			String [] parmstring={};
+	        String [] headers;
+	        String [][] allData;
+	        boolean success = false;
+			
+			// Check if this query requires parameters
+			if (!qr.isParameterQuery(i)) {
+				
+				throw new IllegalArgumentException("The passed in query does not "
+						+ "require parameters.  "
+						+ "This function only handles queries with parameters.");
+			}
+			
+			// Get parameters
+			parmstring = new String[numParam];
+			
+			for (int j = 0; j < numParam; j++) {
+				String currParam = qr.GetParamText(i, j);
+				
+				System.out.print("\nEnter a value for parameter \"");
+				System.out.println(currParam + "\": ");
+				
+				parmstring[j] = scan.nextLine();
+			}
+				
+			// Check if this query is an action query
+			if (qr.isActionQuery(i)) {
+				
+				success = qr.ExecuteUpdate(i, parmstring); 
+				
+				if (success == true) {
+					
+					int updateAmt = qr.GetUpdateAmount();
+					
+					System.out.println("\n" + updateAmt + " total row(s) affected.\n");
+				}
+				else {
+					System.err.print("There was an error updating the db: ");
+					System.err.println(qr.GetError());
+				}
+			}
+			// Not an action query
+			else {
+				success = qr.ExecuteQuery(i, parmstring);
+				
+				if (success = true) {
+					
+					headers = qr.GetQueryHeaders();
+	                allData = qr.GetQueryData();
+	                
+	                for (String s : headers) {
+	                	String header = qr.padRightSpaces(s, 20);
+	                	System.out.print(header + " ");
+	                }
+	                System.out.println();
+	                
+	                System.out.println(qr.getHorizontalLine(20 * headers.length));
+	                
+					for (int j = 0; j < allData.length; j++) {
+						for (int k = 0; k < allData[j].length; k++) {
+							String data = qr.padRightSpaces(allData[j][k], 20);
+							System.out.print(data + " ");
+						}
+						System.out.println();
+					}
+				}
+				else {
+						System.err.print("There was an error getting data from the db: ");
+					System.err.println(qr.GetError());
+				}
+			}
+	    }
+	    
+	/**
+	 * Runs the add member query and prompts user for proper parameters
+	 * @param queryrunner a QueryRunner instance
+	 */
+	public static void runMemberQuery(QueryRunner qr) {
+		
 		Scanner scan = new Scanner(System.in);
 
-		int numParam = qr.GetParameterAmtForQuery(i);
 		String [] parmstring={};
-        String [] headers;
-        String [][] allData;
         boolean success = false;
 		
-		// Check if this query requires parameters
-		if (!qr.isParameterQuery(i)) {
+		// Get parameters
+		parmstring = new String[4];
+		
+		System.out.println("What is the member's first name? ");
+		parmstring[0] = scan.nextLine();
+		
+		System.out.println("What is the member's last name? ");
+		parmstring[1] = scan.nextLine();
+		
+		System.out.println("What is the member's home city? ");
+		parmstring[2] = scan.nextLine();
+		
+		System.out.println("What is the member's country of citizenship? ");
+		parmstring[3] = scan.nextLine();	
 			
-			throw new IllegalArgumentException("The passed in query does not "
-					+ "require parameters.  "
-					+ "This function only handles queries with parameters.");
+		success = qr.ExecuteUpdate(0, parmstring); 
+		
+		if (success == true) {
+			
+			int updateAmt = qr.GetUpdateAmount();
+			
+			System.out.println("\n" + updateAmt + " total row(s) affected.\n");
 		}
+		else {
+			System.err.print("There was an error updating the db: ");
+			System.err.println(qr.GetError());
+	}
+		
+	/**
+	 * Runs the add rating query and prompts user for proper parameters
+	 * @param queryrunner a QueryRunner instance
+	 */
+	public static void runRatingQuery(QueryRunner qr) {
+		
+		Scanner scan = new Scanner(System.in);
+
+		String [] parmstring={};
+        boolean success = false;
 		
 		// Get parameters
-		parmstring = new String[numParam];
+		parmstring = new String[4];
 		
-		for (int j = 0; j < numParam; j++) {
-			String currParam = qr.GetParamText(i, j);
+		System.out.println("What is the member's first name? ");
+		parmstring[0] = scan.nextLine();
+		
+		System.out.println("What is the member's last name? ");
+		parmstring[1] = scan.nextLine();
+		
+		System.out.println("What is the member's home city? ");
+		parmstring[2] = scan.nextLine();
+		
+		System.out.println("What is the member's country of citizenship? ");
+		parmstring[3] = scan.nextLine();	
 			
-			System.out.print("\nEnter a value for parameter \"");
-			System.out.println(currParam + "\": ");
+		success = qr.ExecuteUpdate(0, parmstring); 
+		
+		if (success == true) {
 			
-			parmstring[j] = scan.nextLine();
+			int updateAmt = qr.GetUpdateAmount();
+			
+			System.out.println("\n" + updateAmt + " total row(s) affected.\n");
 		}
-			
-		// Check if this query is an action query
-		if (qr.isActionQuery(i)) {
-			
-			success = qr.ExecuteUpdate(i, parmstring); 
-			
-			if (success == true) {
-				
-				int updateAmt = qr.GetUpdateAmount();
-				
-				System.out.println("\n" + updateAmt + " total row(s) affected.\n");
-			}
-			else {
-				System.err.print("There was an error updating the db: ");
-				System.err.println(qr.GetError());
-			}
-		}
-		// Not an action query
 		else {
-			success = qr.ExecuteQuery(i, parmstring);
-			
-			if (success = true) {
-				
-				headers = qr.GetQueryHeaders();
-                allData = qr.GetQueryData();
-                
-                for (String s : headers) {
-                	String header = qr.padRightSpaces(s, 20);
-                	System.out.print(header + " ");
-                }
-                System.out.println();
-                
-                System.out.println(qr.getHorizontalLine(20 * headers.length));
-                
-				for (int j = 0; j < allData.length; j++) {
-					for (int k = 0; k < allData[j].length; k++) {
-						String data = qr.padRightSpaces(allData[j][k], 20);
-						System.out.print(data + " ");
-					}
-					System.out.println();
-				}
-			}
-			else {
-					System.err.print("There was an error getting data from the db: ");
-				System.err.println(qr.GetError());
-			}
-		}
-    }
-    
+			System.err.print("There was an error updating the db: ");
+			System.err.println(qr.GetError());
+	}
+	
+	public static void displayExit() {
+		System.out.println("\nThank you for using GlobeTrotter!  Enjoy your travels!");
+	}
     
     private QueryJDBC m_jdbcData;
     private String m_error;    
@@ -770,7 +857,7 @@ public static void runParamQuery(QueryRunner qr, int i)
             		
             		System.out.println("****** Welcome to GlobeTrotter *****\n");
             		
-            		int queryChoice;
+            		int queryChoice = 0;
             		while (queryChoice != 11) {
             			queryChoice = getUserChoice();
             			querySwitch(queryrunner, queryChoice);
@@ -783,7 +870,7 @@ public static void runParamQuery(QueryRunner qr, int i)
                 		runQuery(queryrunner, i);
             		}
             		
-            		System.out.println("\nThis the end of the application, we hope you enjoyed it!");
+
             	}
             	else {
             		System.out.print("There was an error connecting to the database: ");
