@@ -26,7 +26,6 @@ WHERE
 	RATING.rat_amt_spent > 2950
 		AND (RATING.rat_stars = 4 
 			or RATING.rat_stars = 5)
-GROUP BY User_Name
 ORDER BY User_Rating DESC;
 
 
@@ -125,9 +124,7 @@ LIMIT 5;
 
 /* Most Commonly Stayed With Hotels At Each Destination */
 SELECT
-    t1.dest_id,
     d.dest_name AS Destination,
-    t1.hotel_id,
     h.hotel_name AS `Hotel Name`,
     t1.numStays AS `# of Stays`
 FROM(
@@ -159,9 +156,47 @@ JOIN(
 ON t2.dest_id = t1.dest_id AND t2.largestCount = t1.numStays
 JOIN DESTINATION d ON t1.dest_id  = d.dest_id
 JOIN HOTEL_BRAND h ON t1.hotel_id = h.hotel_id
-ORDER BY t1.dest_id;
+ORDER BY d.dest_name;
 
 
+
+
+/* Most Commonly Flown With Airlines For Each Destination */
+SELECT
+d.dest_name AS Destination,
+a.air_name AS `Airline Name`,
+t1.numFlys AS `# of Flys`
+FROM(
+	SELECT
+	  r.dest_id,
+	  dest_name,
+	  r.air_code,
+	  air_name,
+	  COUNT(*) AS numFlys
+	FROM RATING r
+	JOIN DESTINATION d ON r.dest_id = d.dest_id
+	JOIN AIRLINE a ON r.air_code = a.air_code
+	GROUP BY dest_id, a.air_code
+	) t1
+JOIN(
+	SELECT
+	  dest_id,
+	  air_code,
+	  MAX(numFlys) AS largestCount
+	FROM(
+		SELECT
+		  dest_id,
+		  air_code,
+		  COUNT(*) AS numFlys
+		FROM RATING
+		GROUP BY dest_id, air_code) temp
+		GROUP BY dest_id
+		) t2
+ON t2.dest_id       = t1.dest_id
+AND t2.largestCount = t1.numFlys
+JOIN DESTINATION d ON t1.dest_id = d.dest_id
+JOIN AIRLINE a ON t1.air_code    = a.air_code
+ORDER BY d.dest_name;
 
 
 /* Get Destinations With All Recommendations */
