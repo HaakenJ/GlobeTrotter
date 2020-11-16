@@ -12,7 +12,6 @@ import java.util.Scanner;
  * functions in order to run the Queries.
  */
 public class QueryRunner {
-
     
     public QueryRunner()
     {
@@ -52,9 +51,10 @@ public class QueryRunner {
         getHotels();			// Query 11
         getDestinations();	    // Query 12
         getHighlights();		// Query 13
+        getAirCodes();          // Query 14
+        getMemberID();		    // Query 15
     }
      
-    
     /**
      * Insert Member Query
      */
@@ -338,6 +338,22 @@ public class QueryRunner {
     	m_queryArray.add(new QueryData("SELECT * FROM HIGHLIGHT"
     			, null, null, false, false));
     }
+    
+    /**
+     * Get all airline codes
+     */
+    private void getAirCodes() {
+   	m_queryArray.add(new QueryData("SELECT air_code FROM AIRLINE"
+   			, null, null, false, false));
+    }
+    
+    /**
+     * Get all number of members
+     */
+    private void getMemberID() {
+   	m_queryArray.add(new QueryData("SELECT member_id FROM MEMBER"
+   			, null, null, false, false));
+    }
 
     public int GetTotalQueries()
     {
@@ -426,7 +442,6 @@ public class QueryRunner {
         m_updateAmount = m_jdbcData.GetUpdateCount();
         return bOK;
     }   
-    
       
     public boolean Connect(String szHost, String szUser, String szPass, String szDatabase)
     {
@@ -492,6 +507,8 @@ public class QueryRunner {
     public static int getUserChoice() {
     	Scanner scan = new Scanner(System.in);
     	
+    	System.out.println("\n\n");
+    	
 		System.out.println("  *** What would you like to do?*** \n");
 		
 		System.out.println("1.  Add a member");
@@ -503,12 +520,14 @@ public class QueryRunner {
 		System.out.println("7.  Display the top 5 most desired destinations by our members");
 		System.out.println("8.  Display the most commonly stayed with hotels at each destination");
 		System.out.println("9.  Display the most commonly flown with airlines for each destination");
-		System.out.println("10. Find a destination by a highlight type");
+		System.out.println("10. Find a 5 star destination by highlight type");
 		System.out.println("11. Quit");
 		
 		System.out.print("\nPlease enter a number for your choice: ");
 		
 		int queryChoice = scan.nextInt();
+		
+		System.out.println("\n");
 		
 		while (queryChoice < 1 || queryChoice > 11) {
 			System.out.println("That is not a valid choice.");
@@ -552,7 +571,7 @@ public class QueryRunner {
 			runQuery(qr, 8);
 			break;
 		case 10:
-			runQuery(qr, 9);
+			runParamQuery(qr, 9);
 			break;
 		default:
 			displayExit();
@@ -654,6 +673,8 @@ public class QueryRunner {
 				
 				parmstring[j] = scan.nextLine();
 			}
+			
+			System.out.println("\n");
 				
 			// Check if this query is an action query
 			if (qr.isActionQuery(i)) {
@@ -740,6 +761,7 @@ public class QueryRunner {
 		else {
 			System.err.print("There was an error updating the db: ");
 			System.err.println(qr.GetError());
+		}
 	}
 		
 	/**
@@ -755,65 +777,181 @@ public class QueryRunner {
         int intChoice;
         String strChoice;
         
-        rat_stars, rat_amt_spent, hotel_id, member_id, air_code, 5, highlight_id)
-		
 		// Get parameters
 		parmstring = new String[7];
 		
+		// Get member
+		System.out.println("What is your member ID? ");
+		intChoice = scan.nextInt();
+		
+		System.out.println("\n");
+		
+		// make sure the choice is a valid member ID
+		while (!validateMemberID(qr, intChoice)) {
+			System.out.println("That is not a valid member ID.");
+			System.out.println("What is your member ID? ");
+			intChoice = scan.nextInt();
+		}
+		
+		// set choice as member ID
+		parmstring[3] = Integer.toString(intChoice);
+		
+		System.out.println("\n");
+
 		// Get destination
-		System.out.println("What is the destination ID for your destination? ");
+		System.out.println("What is the destination ID for "
+				+ "your destination? ");
 		System.out.println("Enter 0 to see all destinations: ");
 		intChoice = scan.nextInt();
 		
+		System.out.println("\n");
+		
 		// display all destinations to the user
 		while (intChoice == 0) {
-			qr.getDestinations();
-			System.out.println("What is the destination ID for your destination? ");
+			runQuery(qr, 12);
+			System.out.println("What is the destination ID for"
+					+ " your destination? ");
 			System.out.println("Enter 0 to see all destinations: ");
 			intChoice = scan.nextInt();
 		}
 		
+		System.out.println("\n");
+		
 		// make sure the choice is a valid dest_id
-		while (intChoice < 0 || intChoice > 60) {
+		while (intChoice < 1 || intChoice > 60) {
 			System.out.println("That is not a valid destination ID.");
-			System.out.println("What is the destination ID for your destination? ");
+			System.out.println("What is the destination ID for"
+					+ " your destination? ");
 			intChoice = scan.nextInt();
 		}
 		
-		parmstring[5] = scan.nextLine();
+		// set choice as destination in parameter string
+		parmstring[5] = Integer.toString(intChoice);
+		
+		System.out.println("\n");
 		
 		// Get airline
-		System.out.println("Who did you fly with? (please enter the airline code) ");
+		System.out.println("Who did you fly with?"
+				+ " (please enter the airline code) ");
 		System.out.println("Enter 0 to see all arlines: ");
 		strChoice = scan.nextLine();
 		
-		// display all destinations to the user
+		System.out.println("\n");
+		
+		// display all airlines to the user
 		while (strChoice == "0") {
-			qr.getAirlines();
-			System.out.println("Who did you fly with? (please enter the airline code) ");
+			runQuery(qr, 10);
+			System.out.println("Who did you fly with?"
+					+ " (please enter the airline code) ");
 			System.out.println("Enter 0 to see all arlines: ");
 			strChoice = scan.nextLine();
 		}
 		
-		// make sure the choice is a valid dest_id
-		while (strChoice.length() <= 1 || strChoice.length() > 3) {
+		System.out.println("\n");
+		
+		// make sure the choice is a valid airline code
+		while (!validateAirCode(qr, strChoice)) {
 			System.out.println("That is not a valid airline code.");
-			System.out.println("Please enter an airline code 1 to 3 characters in length: ");
+			System.out.println("Who did you fly with?"
+					+ " (please enter the airline code) ");
 			strChoice = scan.nextLine();
 		}
 		
-		parmstring[4] = scan.nextLine();
+		// set airline code
+		parmstring[4] = strChoice;
 		
-		System.out.println("What is the member's last name? ");
-		parmstring[1] = scan.nextLine();
+		System.out.println("\n");
 		
-		System.out.println("What is the member's home city? ");
-		parmstring[2] = scan.nextLine();
+		// Get hotel
+		System.out.println("What hotel did you stay with?"
+				+ " (please enter the hotel ID) ");
+		System.out.println("Enter 0 to see all hotel brands: ");
+		intChoice = scan.nextInt();
 		
-		System.out.println("What is the member's country of citizenship? ");
-		parmstring[3] = scan.nextLine();	
+		System.out.println("\n");
+		
+		// display all hotels to the user
+		while (intChoice == 0) {
+			runQuery(qr, 11);
+			System.out.println("What hotel did you stay with?"
+					+ " (please enter the hotel ID) ");
+			System.out.println("Enter 0 to see all hotel brands: ");
+			intChoice = scan.nextInt();
+		}
+		
+		System.out.println("\n");
+		
+		// make sure the choice is a valid hotel ID
+		while (intChoice < 1 || intChoice > 21) {
+			System.out.println("That is not a valid hotel ID.");
+			System.out.println("What hotel did you stay with?"
+					+ " (please enter the hotel ID) ");
+			intChoice = scan.nextInt();
+		}
+		
+		// set hotel ID
+		parmstring[2] = Integer.toString(intChoice);
+		
+		System.out.println("\n");
+		
+		// Get highlight
+		System.out.println("What was your favorite highlight on the trip? "
+				+ "(please enter the highlight ID) ");
+		System.out.println("Enter 0 to see all highlight choices: ");
+		intChoice = scan.nextInt();
+		
+		System.out.println("\n");
+		
+		// display all highlights to the user
+		while (intChoice == 0) {
+			runQuery(qr, 13);
+			System.out.println("What was your favorite highlight on the trip? "
+					+ "(please enter the highlight ID) ");
+			System.out.println("Enter 0 to see all highlight choices: ");
+			intChoice = scan.nextInt();
+		}
+		
+		System.out.println("\n");
+		
+		// make sure the choice is a valid highlight ID
+		while (intChoice < 1 || intChoice > 17) {
+			System.out.println("That is not a valid highlight ID.");
+			System.out.println("What was your favorite highlight on the trip? "
+					+ "(please enter the highlight ID) ");
+			intChoice = scan.nextInt();
+		}
+		
+		// set highlight ID
+		parmstring[6] = Integer.toString(intChoice);
+		
+		System.out.println("\n");
+		
+		// Get amount spent
+		System.out.println("How much did you spend on your trip? ");
+		intChoice = scan.nextInt();
+		
+		// set amount spent
+		parmstring[1] = Integer.toString(intChoice);
+		
+		System.out.println("\n");
+
+		// Get rating
+		System.out.println("Finally, what rating would you give your trip? (0 to 5)");
+		intChoice = scan.nextInt();
+		
+		System.out.println("\n");
+		
+		// make sure the choice is a valid rating
+		while (intChoice < 0 || intChoice > 5) {
+			System.out.println("That is not a valid rating.");
+			System.out.println("What rating would you give your trip? (0 to 5)");
+			intChoice = scan.nextInt();
+		}
+		
+		// set rating
+		parmstring[0] = Integer.toString(intChoice);
 			
-		success = qr.ExecuteUpdate(0, parmstring); 
+		success = qr.ExecuteUpdate(1, parmstring); 
 		
 		if (success == true) {
 			
@@ -824,12 +962,73 @@ public class QueryRunner {
 		else {
 			System.err.print("There was an error updating the db: ");
 			System.err.println(qr.GetError());
+		}
 	}
 	
 	public static void displayExit() {
 		System.out.println("\nThank you for using GlobeTrotter!  Enjoy your travels!");
 	}
-    
+
+	/**
+	 * Validate whether a passed in airline code is an air_code in the db
+	 * @param qr      a QueryRunner instance
+	 * @param airCode the airCode to test
+	 * @return        true if the airCode is valid
+	 */
+	public static boolean validateAirCode(QueryRunner qr, String airCode) {
+			String [] parmstring={};
+	        String [][] allData;
+				
+			boolean success = qr.ExecuteQuery(14, parmstring);
+			
+			if (success = true) {
+                allData = qr.GetQueryData();
+
+				for (int j = 0; j < allData.length; j++) {
+					for (int k = 0; k < allData[j].length; k++) {
+						if (allData[j][k].equals(airCode))
+							return true;
+					}
+				}
+			}
+			else {
+				System.err.print("There was an error getting data from the db: ");
+				System.err.println(qr.GetError());
+			}
+			return false;
+	}
+	
+	/**
+	 * Validate whether a passed in member_id is in the db
+	 * @param qr       a QueryRunner instance
+	 * @param memberID the memberID to test
+	 * @return        true if the memberID is valid
+	 */
+	public static boolean validateMemberID(QueryRunner qr, int memberID) {
+			String [] parmstring={};
+	        String [][] allData;
+	        
+	        String memberIDStr = Integer.toString(memberID);
+				
+			boolean success = qr.ExecuteQuery(15, parmstring);
+			
+			if (success = true) {
+                allData = qr.GetQueryData();
+
+				for (int j = 0; j < allData.length; j++) {
+					for (int k = 0; k < allData[j].length; k++) {
+						if (allData[j][k].equals(memberIDStr))
+							return true;
+					}
+				}
+			}
+			else {
+				System.err.print("There was an error getting data from the db: ");
+				System.err.println(qr.GetError());
+			}
+			return false;
+	}
+	
     private QueryJDBC m_jdbcData;
     private String m_error;    
     private String m_projectTeamApplication;
@@ -900,7 +1099,7 @@ public class QueryRunner {
             	if (queryrunner.Connect(hostname, user, password, dbName)) {
             		System.out.println("Connection successful\n");
             		
-            		System.out.println("****** Welcome to GlobeTrotter *****\n");
+            		System.out.println("****** Welcome to GlobeTrotter *****");
             		
             		int queryChoice = 0;
             		while (queryChoice != 11) {
@@ -910,10 +1109,10 @@ public class QueryRunner {
             		
             		int n = queryrunner.GetTotalQueries();
             		
-            		// Loop through  all queries
-            		for (int i = 6; i < 14; i++) {
-                		runQuery(queryrunner, i);
-            		}
+//            		// Loop through  all queries
+//            		for (int i = 6; i < 14; i++) {
+//                		runQuery(queryrunner, i);
+//            		}
             		
 
             	}
