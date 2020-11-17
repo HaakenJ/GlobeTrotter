@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.awt.Color;
 import javax.swing.*;
+import java.awt.Font;
 
 public class QueryFrame extends javax.swing.JFrame {
 
@@ -25,6 +26,9 @@ public class QueryFrame extends javax.swing.JFrame {
  * @param queryrunnerObj 
  */
     public QueryFrame(QueryRunner queryrunnerObj) {
+	setBackground(new Color(204, 255, 255));
+	setForeground(new Color(204, 255, 255));
+	getContentPane().setBackground(new Color(204, 255, 255));
         initComponents();
         m_parmlabels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4, jLabel9, jLabel10, jLabel11, jLabel12};        
         m_textvals = new JTextField[] { jTextField5, jTextField6,jTextField7,jTextField8,jTextField9,jTextField10,jTextField11,jTextField12};
@@ -53,40 +57,82 @@ public class QueryFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextFieldDatabase = new javax.swing.JTextField();
+        jTextFieldDatabase = new javax.swing.JTextField("globetrotter");
+        jTextFieldDatabase.setForeground(new Color(102, 102, 102));
+        jTextFieldDatabase.setBackground(new Color(255, 255, 204));
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        jTextArea1.setBackground(new Color(255, 255, 204));
         jScrollPane2 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
-        jTextHostname = new javax.swing.JTextField();
-        jTextFieldUser = new javax.swing.JTextField();
+        jTextArea2.setBackground(new Color(255, 255, 204));
+        jTextHostname = new javax.swing.JTextField("mysql-test01.cw3pi1ekgozo.us-east-1.rds.amazonaws.com");
+        jTextHostname.setForeground(new Color(102, 102, 102));
+        jTextHostname.setBackground(new Color(255, 255, 204));
+        jTextFieldUser = new javax.swing.JTextField("admin");
+        jTextFieldUser.setForeground(new Color(102, 102, 102));
+        jTextFieldUser.setBackground(new Color(255, 255, 204));
         jPanel1 = new javax.swing.JPanel();
+        jPanel1.setBackground(new Color(204, 255, 255));
+        jPanel1.setForeground(new Color(204, 255, 153));
         jTextField5 = new javax.swing.JTextField();
+        jTextField5.setBackground(new Color(255, 255, 204));
         jTextField6 = new javax.swing.JTextField();
+        jTextField6.setBackground(new Color(255, 255, 204));
         jTextField7 = new javax.swing.JTextField();
+        jTextField7.setBackground(new Color(255, 255, 204));
         jTextField8 = new javax.swing.JTextField();
+        jTextField8.setBackground(new Color(255, 255, 204));
         jLabel1 = new javax.swing.JLabel();
+        jLabel1.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel2 = new javax.swing.JLabel();
+        jLabel2.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel3 = new javax.swing.JLabel();
+        jLabel3.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel4 = new javax.swing.JLabel();
+        jLabel4.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel9 = new javax.swing.JLabel();
+        jLabel9.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel10 = new javax.swing.JLabel();
+        jLabel10.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel11 = new javax.swing.JLabel();
+        jLabel11.setFont(new Font("SimSun", Font.BOLD, 12));
         jLabel12 = new javax.swing.JLabel();
+        jLabel12.setFont(new Font("SimSun", Font.BOLD, 12));
         jTextField9 = new javax.swing.JTextField();
+        jTextField9.setBackground(new Color(255, 255, 204));
         jTextField10 = new javax.swing.JTextField();
+        jTextField10.setBackground(new Color(255, 255, 204));
         jTextField11 = new javax.swing.JTextField();
+        jTextField11.setBackground(new Color(255, 255, 204));
         jTextField12 = new javax.swing.JTextField();
+        jTextField12.setBackground(new Color(255, 255, 204));
         jPanel2 = new javax.swing.JPanel();
+        jPanel2.setBackground(new Color(255, 255, 204));
         jComboBoxQuery = new javax.swing.JComboBox<>();
+        jComboBoxQuery.setFont(new Font("SimSun", Font.BOLD, 12));
+        jComboBoxQuery.setBackground(new Color(153, 255, 255));
         jLabel5 = new javax.swing.JLabel();
+        jLabel5.setFont(new Font("Rockwell", Font.BOLD, 12));
         jLabel6 = new javax.swing.JLabel();
+        jLabel6.setFont(new Font("Rockwell", Font.BOLD, 12));
+        jLabel6.setForeground(Color.BLACK);
         jLabel7 = new javax.swing.JLabel();
+        jLabel7.setFont(new Font("Rockwell", Font.BOLD, 12));
         jLabel8 = new javax.swing.JLabel();
+        jLabel8.setFont(new Font("Rockwell", Font.BOLD, 12));
         jConnectButton = new javax.swing.JButton();
+        jConnectButton.setFont(new Font("SimSun", Font.BOLD, 12));
+        jConnectButton.setBackground(new Color(153, 255, 255));
         jBtnRunQuery = new javax.swing.JButton();
+        jBtnRunQuery.setFont(new Font("SimSun", Font.BOLD, 12));
+        jBtnRunQuery.setBackground(new Color(153, 255, 255));
         jPasswordField1 = new javax.swing.JPasswordField();
+        jPasswordField1.setForeground(new Color(102, 102, 102));
+        jPasswordField1.setBackground(new Color(255, 255, 204));
         jLabel13 = new javax.swing.JLabel();
+        jLabel13.setFont(new Font("SimSun", Font.BOLD, 12));
+        jLabel13.setBackground(new Color(255, 204, 0));
         jLabel14 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -136,7 +182,7 @@ public class QueryFrame extends javax.swing.JFrame {
         jLabel3.setToolTipText("");
         jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(652, 29, 115, -1));
 
-        jLabel4.setBackground(new java.awt.Color(204, 255, 255));
+        jLabel4.setBackground(new Color(153, 255, 255));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel4.setText("aaa");
         jLabel4.setToolTipText("");
@@ -206,14 +252,14 @@ public class QueryFrame extends javax.swing.JFrame {
         });
         getContentPane().add(jBtnRunQuery, new org.netbeans.lib.awtextra.AbsoluteConstraints(460, 190, -1, -1));
 
-        jPasswordField1.setText("jPasswordField1");
+        jPasswordField1.setText("Mile!56stone");
         jPasswordField1.setNextFocusableComponent(jTextFieldDatabase);
         getContentPane().add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 110, 120, -1));
 
         jLabel13.setText("Output");
         getContentPane().add(jLabel13, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 190, -1, -1));
 
-        jLabel14.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        jLabel14.setFont(new Font("Tahoma", Font.BOLD, 18)); // NOI18N
         jLabel14.setText("VVV");
         getContentPane().add(jLabel14, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 10, 180, -1));
 

@@ -1,5 +1,9 @@
 package queryrunner;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -19,23 +23,9 @@ public class QueryRunner {
         m_updateAmount = 0;
         m_queryArray = new ArrayList<>();
         m_error="";
-    
-        
-        // TODO - You will need to change the queries below to match your queries.
-        
-        // You will need to put your Project Application in the below variable
         
         this.m_projectTeamApplication="GLOBETROTTER";    // THIS NEEDS TO CHANGE FOR YOUR APPLICATION
-        
-        // Each row that is added to m_queryArray is a separate query. It does not work on Stored procedure calls.
-        // The 'new' Java keyword is a way of initializing the data that will be added to QueryArray. Please do not change
-        // Format for each row of m_queryArray is: (QueryText, ParamaterLabelArray[], LikeParameterArray[], IsItActionQuery, IsItParameterQuery)
-        
-        //    QueryText is a String that represents your query. It can be anything but Stored Procedure
-        //    Parameter Label Array  (e.g. Put in null if there is no Parameters in your query, otherwise put in the Parameter Names)
-        //    LikeParameter Array  is an array I regret having to add, but it is necessary to tell QueryRunner which parameter has a LIKE Clause. If you have no parameters, put in null. Otherwise put in false for parameters that don't use 'like' and true for ones that do.
-        //    IsItActionQuery (e.g. Mark it true if it is, otherwise false)
-        //    IsItParameterQuery (e.g.Mark it true if it is, otherwise false)
+    
         
         insertMember();         // Query 0
         insertRating();         // Query 1
@@ -722,7 +712,11 @@ public class QueryRunner {
 					System.err.println(qr.GetError());
 				}
 			}
-	    }
+		}
+		
+	private static boolean isAlphabetical(String str) {
+		return str.chars().allMatch(Character::isLetter);
+	}
 	    
 	/**
 	 * Runs the add member query and prompts user for proper parameters
@@ -740,15 +734,30 @@ public class QueryRunner {
 		
 		System.out.println("What is the member's first name? ");
 		parmstring[0] = scan.nextLine();
+		while (!isAlphabetical(parmstring[0])) {
+			System.out.println("First name should be alphabetical.");
+			System.out.print("\nPlease enter an alphabetical first name: ");
+			parmstring[0] = scan.nextLine();
+		}
 		
 		System.out.println("What is the member's last name? ");
 		parmstring[1] = scan.nextLine();
+		while (!isAlphabetical(parmstring[1])) {
+			System.out.println("Last name should be alphabetical.");
+			System.out.print("\nPlease enter an alphabetical last name: ");
+			parmstring[1] = scan.nextLine();
+		}
 		
 		System.out.println("What is the member's home city? ");
 		parmstring[2] = scan.nextLine();
 		
 		System.out.println("What is the member's country of citizenship? ");
 		parmstring[3] = scan.nextLine();	
+		while (parmstring[3].length() != 2) {
+			System.out.println("Only the two-letter country code is required.");
+			System.out.print("\nPlease enter the two-letter country code of the country: ");
+			parmstring[3] = scan.nextLine();
+		}
 			
 		success = qr.ExecuteUpdate(0, parmstring); 
 		
@@ -762,6 +771,8 @@ public class QueryRunner {
 			System.err.print("There was an error updating the db: ");
 			System.err.println(qr.GetError());
 		}
+
+		scan.close();
 	}
 		
 	/**
@@ -963,6 +974,8 @@ public class QueryRunner {
 			System.err.print("There was an error updating the db: ");
 			System.err.println(qr.GetError());
 		}
+
+		scan.close();
 	}
 	
 	public static void displayExit() {
@@ -1028,17 +1041,29 @@ public class QueryRunner {
 			}
 			return false;
 	}
+
+	private String readQueryFromFile(String fileName) {
+    	StringBuilder sb = new StringBuilder();
+    	try {
+    		BufferedReader bufferedReader = new BufferedReader(new FileReader(SQLQueryFilesRootPath + fileName));      
+            String line;
+            while ((line = bufferedReader.readLine()) != null)
+            {
+                sb.append(line);
+            }
+    	} catch (FileNotFoundException e) {
+	        e.printStackTrace();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+        return sb.toString();
+    }
 	
     private QueryJDBC m_jdbcData;
     private String m_error;    
     private String m_projectTeamApplication;
     private ArrayList<QueryData> m_queryArray;  
     private int m_updateAmount;
-            
-    /**
-     * @param args the command line arguments
-     */
-    
 
     
     public static void main(String[] args) {
@@ -1058,19 +1083,6 @@ public class QueryRunner {
         {
             if (args[0].equals ("-console"))
             {            	
-            	
-            	// TO-DO:
-            	//    1. Add a insert rating query
-            	//    2. Allow users to log in
-            	//        a. Need a member lookup query
-            	//    3. Number all queries and let a user choose one
-            	//    4. Create function to display query results
-            	//    5. Create function for each query perhaps
-            	//    6. If no results are returned then let the user know that
-//            	runMemberQuery(qr);
-//                runRatingQuery(qr);
-//                runParamQuery(qr, 5);
-//                displayExit();
             	String hostname;
             	String user;
             	String password;
@@ -1106,64 +1118,13 @@ public class QueryRunner {
             			queryChoice = getUserChoice();
             			querySwitch(queryrunner, queryChoice);
             		}
-            		
-            		int n = queryrunner.GetTotalQueries();
-            		
-//            		// Loop through  all queries
-//            		for (int i = 6; i < 14; i++) {
-//                		runQuery(queryrunner, i);
-//            		}
-            		
-
             	}
             	else {
             		System.out.print("There was an error connecting to the database: ");
             		System.out.println(queryrunner.GetError());
             	}
             	
-            	scan.close();
-            	
-               // TODO 
-                // You should code the following functionality:
-
-                //    You need to determine if it is a parameter query. If it is, then
-                //    you will need to ask the user to put in the values for the Parameters in your query
-                //    you will then call ExecuteQuery or ExecuteUpdate (depending on whether it is an action query or regular query)
-                //    if it is a regular query, you should then get the data by calling GetQueryData. You should then display this
-                //    output. 
-                //    If it is an action query, you will tell how many row's were affected by it.
-                // 
-                //    This is Psuedo Code for the task:  
-                //    Connect()
-                //    n = GetTotalQueries()
-                //    for (i=0;i < n; i++)
-                //    {
-                //       Is it a query that Has Parameters
-                //       Then
-                //           amt = find out how many parameters it has
-                //           Create a paramter array of strings for that amount
-                //           for (j=0; j< amt; j++)
-                //              Get The Paramater Label for Query and print it to console. Ask the user to enter a value
-                //              Take the value you got and put it into your parameter array
-            //           If it is an Action Query then
-            //              call ExecuteUpdate to run the Query
-            //              call GetUpdateAmount to find out how many rows were affected, and print that value
-            //           else
-            //               call ExecuteQuery 
-            //               call GetQueryData to get the results back
-            //               print out all the results
-                //           end if
-                //      }
-                //    Disconnect()
-
-
-                // NOTE - IF THERE ARE ANY ERRORS, please print the Error output
-                // NOTE - The QueryRunner functions call the various JDBC Functions that are in QueryJDBC. If you would rather code JDBC
-                // functions directly, you can choose to do that. It will be harder, but that is your option.
-                // NOTE - You can look at the QueryRunner API calls that are in QueryFrame.java for assistance. You should not have to 
-                //    alter any code in QueryJDBC, QueryData, or QueryFrame to make this work.
-//                System.out.println("Please write the non-gui functionality");
-                
+            	scan.close();                
             }
         }
  
