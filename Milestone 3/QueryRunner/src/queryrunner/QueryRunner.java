@@ -49,7 +49,8 @@ public class QueryRunner {
      * Insert Member Query
      */
     private void insertMember() {
-    	m_queryArray.add(new QueryData("INSERT into MEMBER(member_fname, member_lname, member_city, member_country) VALUES (?, ?, ?, ?)"
+    	// We use stored procedure to query data
+    	m_queryArray.add(new QueryData("call globetrotter.addNewMember(?,?,?,?)"
     			, new String[]{"First Name", "Last Name", "City", "Country"}, new boolean[] {false, false, false, false}, true, true));
     }
     
@@ -79,16 +80,8 @@ public class QueryRunner {
      * This query is a way for users to see what the most visited destinations are. 
      */
     private void top3MostVisited() {
-   	 m_queryArray.add(new QueryData(""
-   	 			+ "SELECT\r\n"
-        		+ "DESTINATION.dest_name AS Destination,\r\n"
-        		+ "COUNT(RATING.dest_id) AS 'Number of Visits'\r\n"
-        		+ "From\r\n"
-        		+ "DESTINATION\r\n"
-        		+ "JOIN RATING ON RATING.dest_id = DESTINATION.dest_id\r\n"
-        		+ "GROUP BY RATING.dest_id\r\n"
-        		+ "ORDER BY COUNT(RATING.dest_id) DESC\r\n"
-        		+ "LIMIT 3;", null, null, false, false));
+    	// We use stored procedure to query data
+    	m_queryArray.add(new QueryData("call globetrotter.top3MostVisited()", null, null, false, false));
     }
     
     /**
@@ -771,8 +764,6 @@ public class QueryRunner {
 			System.err.print("There was an error updating the db: ");
 			System.err.println(qr.GetError());
 		}
-
-		scan.close();
 	}
 		
 	/**
@@ -845,12 +836,13 @@ public class QueryRunner {
 		System.out.println("Who did you fly with?"
 				+ " (please enter the airline code) ");
 		System.out.println("Enter 0 to see all arlines: ");
+		scan.nextLine(); // use remaining line
 		strChoice = scan.nextLine();
 		
 		System.out.println("\n");
 		
 		// display all airlines to the user
-		while (strChoice == "0") {
+		while (strChoice.equals("0")) {
 			runQuery(qr, 10);
 			System.out.println("Who did you fly with?"
 					+ " (please enter the airline code) ");
@@ -975,7 +967,6 @@ public class QueryRunner {
 			System.err.println(qr.GetError());
 		}
 
-		scan.close();
 	}
 	
 	public static void displayExit() {
@@ -1056,6 +1047,7 @@ public class QueryRunner {
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
+    	
         return sb.toString();
     }
 	
@@ -1064,6 +1056,7 @@ public class QueryRunner {
     private String m_projectTeamApplication;
     private ArrayList<QueryData> m_queryArray;  
     private int m_updateAmount;
+    private String SQLQueryFilesRootPath = "./";
 
     
     public static void main(String[] args) {
@@ -1123,8 +1116,6 @@ public class QueryRunner {
             		System.out.print("There was an error connecting to the database: ");
             		System.out.println(queryrunner.GetError());
             	}
-            	
-            	scan.close();                
             }
         }
  

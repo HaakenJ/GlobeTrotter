@@ -1,0 +1,20 @@
+SELECT 
+  d.dest_name AS Destination, 
+  f.food_name AS 'Rec. Food', 
+  h.hotel_name AS 'Rec. Hotel', 
+  a.air_name AS 'Rec. Airline', 
+  hi.highlight_name AS 'Rec. Highlight', 
+  COUNT(dd.dest_id) AS '# of Users' 
+FROM 
+  DESTINATION d 
+  JOIN HOTEL_BRAND h ON h.hotel_id = d.hotel_id 
+  JOIN AIRLINE a ON a.air_code = d.air_code 
+  JOIN HIGHLIGHT hi ON hi.highlight_id = d.highlight_id 
+  JOIN FOOD_TYPE f ON f.food_id = d.food_id 
+  JOIN DESIRED_DEST dd ON dd.dest_id = d.dest_id 
+GROUP BY 
+  d.dest_id 
+ORDER BY 
+  COUNT(dd.dest_id) DESC 
+LIMIT 
+  5

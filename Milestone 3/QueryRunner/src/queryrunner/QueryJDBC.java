@@ -16,11 +16,10 @@ import java.util.ArrayList;
  * @author mckeem
  */
 
-
 public class QueryJDBC {
 
 
-    public Connection m_conn = null; 
+    public Connection m_conn = null;
     static final String DB_DRV = "com.mysql.jdbc.Driver";
     String m_error="";  
     String m_url;
@@ -191,7 +190,7 @@ public class QueryJDBC {
     }
    
     
-                 
+             
     public boolean ConnectToDatabase(String host, String user, String pass, String database)
     {        
         String url;
